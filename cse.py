@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tqdm
 
+
 def cse(D):
     n, m = D.shape
     assert n == m
@@ -21,10 +22,11 @@ def cse(D):
     X = np.sqrt(w[-d:]) * v[:, -d:]
     return X
 
+
 def embed_and_plot_graph(A, filename="embedding.png", label=False):
     n, _ = A.shape
     print("graph:")
-    print(A)
+    print(0 + A)
     print("computing distances from adjacency matrix...")
     # floyd-warshall
     D = np.ones((n, n), dtype=float)
@@ -36,10 +38,10 @@ def embed_and_plot_graph(A, filename="embedding.png", label=False):
                 D[i, j] = min(D[i, j], D[i, k] + D[k, j])
     print(D)
     # remove infinities
-    D = np.clip(D, 0, np.log(n))
+    D = np.clip(D, 0, 3.2*np.log(n)) # TODO: automatically tune?
     print("computing embedding...")
     X = cse(D)[:,-2:]
-    print(X.T.round(2))
+    print(X.round(2))
     print("creating and saving plot...")
     plt.scatter(*X.T, color="red")
     ij = np.where(np.triu(A) == 1)
@@ -56,11 +58,13 @@ def embed_and_plot_graph(A, filename="embedding.png", label=False):
 
 # test
 if __name__ == "__main__":
-    n = 150
-    p = 0.02
     np.random.seed(42)
+    # build random adjacency matrix, Erdos-Reyni model
+    n = 150
+    p = 0.03
     G = np.zeros((n, n))
     G[np.triu_indices(n, k=1)] = np.random.random(n*(n-1)//2)
     G += G.T
     G = G < p
+    # embed and plot graph
     embed_and_plot_graph(G)
